@@ -32,7 +32,18 @@ const source = `<!DOCTYPE html>
               {{#ifEquals this "string"}}
               <li> {{json this}} </li>
               {{else}}
-                     {{json this}}
+                     {{ json this}}
+                     <br></br>
+                        {{#ife this.type}}
+                            
+                            {{this.type}}
+                            <br></br>
+                            'Message for set'
+                            <br></br>
+                            {{else}}
+                            {{this.type}}
+                            <br></br>
+                        {{/ife}}
               {{/ifEquals}}
               {{/each}}
               </div>
@@ -60,6 +71,14 @@ Handlebars.registerHelper('ifEquals', function(arg1, arg2, options) {
     return (typeof arg1 == arg2) ? options.fn(this) : options.inverse(this);
 });
 
+Handlebars.registerHelper('ife', function(arg1, options) {
+    if(arg1 === 'set') {
+        console.log('set')
+        return options.fn(this);
+    }
+    return options.inverse(this);
+});
+
 const template = Handlebars.compile(source);
 
 const getRules = (tags) => {
@@ -72,6 +91,7 @@ const getRules = (tags) => {
 const getVerbs = (tags) => {
     const verbs = [];
     for (const field of Object.keys(tags.verbs)) {
+        
         const tmp = {...tags.verbs[field].action};
         delete tmp.output
         verbs.push(tags.verbs[field].action.output.split(':')[1], tmp)
