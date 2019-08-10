@@ -1,0 +1,51 @@
+{
+    "state": {
+        "brightness" : {
+            "rules": ["required", "integer", {"number_between": [0, 100, true]}],
+            "default": 100
+        },
+        "brightness2" : {
+            "rules": ["required", "integer", {"number_between": [0, 10, true]}],
+            "default": 100
+        }
+    },
+    "verbs": {
+        "setbrightness": {
+            "action": {
+                "type": "set",
+                "input": "adverb:value",
+                "output": "state:brightness"
+            },
+            "adverb" : {
+                "value": {
+                    "rules": ["required", {"map": {"morning": 50, "day": 100, "evening": 30, "night": 0}}]
+                }
+            }
+        },
+        "darker": {
+            "action": {
+                "type": "decrease",
+                "input": "adverb:value",
+                "output": "state:brightness2"
+            },
+            "adverb": {
+                "value": {
+                    "rules": ["positive_integer", {"default": 20}]
+                }
+            }
+        },
+        "brighter": {
+            "action": {
+                "type": "increase",
+                "input": "adverb:value",
+                "output": "state:brightness2"
+            },
+            "adverb": {
+                "value": {
+                    "rules": "positive_integer",
+                    "default": 20
+                }
+            }
+        }
+    }
+}

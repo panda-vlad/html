@@ -1,4 +1,5 @@
 const test = require('./test.json');
+const config = require('./config');
 const Handlebars = require('handlebars');
 
 const source = `<!DOCTYPE html>
@@ -29,35 +30,15 @@ const source = `<!DOCTYPE html>
             <div class="container-overview">
             <div class="description">This provides method(s)
               {{#each method}}
-              {{#ifEquals this "string"}}
-              <li> {{json this}} </li>
-              {{else}}
-                     {{ json this}}
-                     <br></br>
-                        {{#ife this.type}}
-                            
-                            {{this.type}}
-                            <br></br>
-                            'Message for set'
-                            <br></br>
-                            {{else}}
-                            {{this.type}}
-                            <br></br>
-                        {{/ife}}
-              {{/ifEquals}}
+                {{{this}}}
               {{/each}}
               </div>
             <div class="description">
             <ul class="people_list">
-                {{#each rules}}
-                
-                {{#ifEquals this "string"}}
-                    <li> {{this}} </li>
-                    {{else}}
-                     {{json this}}
-                {{/ifEquals}}
-                
-                {{/each}}
+            Rules for:
+            {{#each rules}}
+                {{{this}}}
+            {{/each}}
             </div>
             </div>
         </article>
@@ -65,58 +46,58 @@ const source = `<!DOCTYPE html>
     <script src="scripts/linenumber.js"> </script>
    </body>
 </html>
-`
-
-Handlebars.registerHelper('ifEquals', function(arg1, arg2, options) {
-    return (typeof arg1 == arg2) ? options.fn(this) : options.inverse(this);
-});
-
-Handlebars.registerHelper('ife', function(arg1, options) {
-    if(arg1 === 'set') {
-        console.log('set')
-        return options.fn(this);
-    }
-    return options.inverse(this);
-});
+`;
 
 const template = Handlebars.compile(source);
 
 const getRules = (tags) => {
-    const rulse = []
-   for(const field of Object.keys(test.state)) 
-     rulse.push(field +  ':\n',tags.state[field].rules);
-   return rulse;
-}
+  const rulse = [];
+  for (const field of Object.keys(test.state))
+    rulse.push(`<li> ${field}: ${JSON.stringify(tags.state[field].rules)}</li>`);
+  return rulse;
+};
 
 const getVerbs = (tags) => {
-    const verbs = [];
-    for (const field of Object.keys(tags.verbs)) {
-        
-        const tmp = {...tags.verbs[field].action};
-        delete tmp.output
-        verbs.push(tags.verbs[field].action.output.split(':')[1], tmp)
+  const verbs = [];
+  
+  // for (const field of Object.keys(tags.verbs)) {
+
+  //     const tmp = {...tags.verbs[field].action};
+  //     delete tmp.output
+  //     verbs.push(tags.verbs[field].action.output.split(':')[1], tmp)
+  // }
+  for (const field of Object.keys(tags.verbs)) {
+    let description = null;
+    const stateField = `<li>${field}</li>`;
+    const tmp = {...tags.verbs[field].action};
+    delete tmp.output
+    switch (tags.verbs[field].action.type) {
+      case 'set':
+        description = config.set;
+        break;
+      case 'decrease':
+        description = config.decrease;
+      case 'increase':
+        description = config.increase;
     }
-    return verbs;
-}
-
-
-Handlebars.registerHelper('json', function(obj) {
-    return JSON.stringify(obj);
-  });
+    verbs.push('<br></br>',stateField, tags.verbs[field].action.output.split(':')[1],':', JSON.stringify(tmp), `<br>${description}</br>`);
+  }
+  return verbs;
+};
 
 
 const data = {
-    name: Object.keys(test.state),
-    rules: getRules(test),
-    method: getVerbs(test)
-}
+  name: Object.keys(test.state),
+  rules: getRules(test),
+  method: getVerbs(test)
+};
 
 const result = template(data);
 
 
 const fs = require('fs');
-    fs.writeFile("test.html", result, function(err) {
-    if(err) {
-        return console.log(err);
-    }
+fs.writeFile('test.html', result, (err) => {
+  if (err) {
+    return console.log(err);
+  }
 });

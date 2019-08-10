@@ -4,9 +4,13 @@
   "description": "",
   "main": "createHtml.js",
   "scripts": {
-    "start": "nodemon createHtml.js" 
+    "start": "nodemon createHtml.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "handlebars": "^4.1.2",
+    "nodemon": "^1.19.1"
+  }
 }
